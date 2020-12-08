@@ -37,71 +37,28 @@ class MainActivity :
             ActivityCompat.requestPermissions(this, arrayOf(wes), 0)
         }
 
-        println("--- getPermissions --- ${ContextCompat.checkSelfPermission(this, wes) == PERMISSION_GRANTED}")
+        // TODO: log the permission
         return ContextCompat.checkSelfPermission(this, wes) == PERMISSION_GRANTED
-    }
-
-    private fun showTextInputDialog() {
-        val newFragment = InputTextDialog()
-        newFragment.show(supportFragmentManager, "添加字符")
     }
 
     private fun displayTextPic(text: String) {
         val view = findViewById<View>(R.id.imageView)
 
-        val context = this.applicationContext
         var rotatedBitmap: Bitmap?
-        val t = TextPic(applicationContext, view).apply {
+        TextPic(applicationContext, view).apply {
             this.text = text
             val imageView = view.findViewById<ImageView>(R.id.imageView)
             rotatedBitmap = this.generatePicture()
             imageView.setImageBitmap(rotatedBitmap)
-
-//            try {
-//                val root: String = context?.getExternalFilesDir(null).toString()
-//                val out = FileOutputStream("$root/Pictures/text.png")
-//                rotatedBitmap?.compress(Bitmap.CompressFormat.PNG, 100, out);
-//                out.flush();
-//                out.close();
-//            } catch (e: IOException) {
-//                println("--- e --- ${e}");
-//            }
         }
 
-        val root: String = getExternalFilesDir(null).toString()
-        val file = File("$root/Pictures/text.png")
-//        MediaScannerConnection(this,
-//            object : MediaScannerConnection.MediaScannerConnectionClient {
-//                private lateinit var mediaScannerConn: MediaScannerConnection
-//                private lateinit var file: File
-//
-//                fun SingleMediaScanner(context: Context, file: File) {
-//                    this.file = file
-//                    mediaScannerConn = MediaScannerConnection(context, this)
-//                    mediaScannerConn.connect()
-//                }
-//
-//                override fun onMediaScannerConnected() {
-//                    mediaScannerConn.scanFile(file.absolutePath, null);
-//                }
-//
-//
-//                override fun onScanCompleted(path: String, uri: Uri) {
-//                    mediaScannerConn.disconnect()
-//                }
-//            })
-
-//        println("--- file --- $file")
-
         val resolver = applicationContext.contentResolver
-
         val newImageDetails = ContentValues().apply {
             put(MediaStore.Images.Media.TITLE, "text.png")
             put(MediaStore.Images.Media.DISPLAY_NAME, "text.png")
             put(MediaStore.Images.Media.MIME_TYPE, "image/png")
             put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
             put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-//            put(MediaStore.Images.Media.RELATIVE_PATH,"Pictures/DemoPicture")
         }
 
         val imageCollection = MediaStore.Images.Media.getContentUri(
@@ -109,25 +66,13 @@ class MainActivity :
 
         val imageUri = resolver.insert(imageCollection, newImageDetails)
 
-        println("--- before uri --- $imageCollection")
-
-        imageUri?.let {
-            resolver.openOutputStream(it).use {
-                println("--- rotatedBitmap --- ${rotatedBitmap.toString()}")
+        imageUri?.let { uri ->
+            resolver.openOutputStream(uri).use {
                 rotatedBitmap?.compress(Bitmap.CompressFormat.PNG, 100, it);
                 it?.flush()
                 it?.close()
             }
         }
-
-
-        println("--- URI --- ${imageUri.toString()}")
-        MediaScannerConnection.scanFile(this, arrayOf("/storage/emulated/0/Pictures/1606139478005.jpg"), null
-            ) { path: String, uri: Uri ->
-            println("--- path? --- ${path}")
-            println("--- uri? --- ${uri}")
-        };
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,8 +81,14 @@ class MainActivity :
         setSupportActionBar(findViewById(R.id.toolbar))
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
+
+            // TODO: It can not popup the dialog when first get permission.
             if (getPermissions()) {
-                showTextInputDialog()
+
+                findViewById<EditText>(R.id.inputTexts).let {
+                    displayTextPic(it?.text.toString())
+                }
+
                 Snackbar.make(view, "Save OK.", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
             }

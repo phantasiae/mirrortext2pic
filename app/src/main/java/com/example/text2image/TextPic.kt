@@ -3,10 +3,6 @@ package com.example.text2image
 import android.content.Context
 import android.graphics.*
 import android.view.View
-import android.widget.ImageView
-import androidx.core.graphics.createBitmap
-import java.io.FileOutputStream
-import java.io.IOException
 
 class TextPic(context: Context, view: View) {
 
@@ -17,11 +13,8 @@ class TextPic(context: Context, view: View) {
     private var view: View = view
 
     fun generatePicture(): Bitmap? {
-
-
-
-        val bitmap1 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap1).also {
+        val textPictured = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(textPictured).also {
             val paint1 = Paint(Paint.LINEAR_TEXT_FLAG or Paint.ANTI_ALIAS_FLAG).apply {
                 color = Color.BLACK
                 strokeWidth = 40f
@@ -33,7 +26,6 @@ class TextPic(context: Context, view: View) {
                 isDither = true
             }
 
-            val metrics = paint1.getFontMetrics()
             val wordsLength = paint1.measureText(text)
             it.drawARGB(255, 255, 255, 255);
             if (wordsLength < 900) {
@@ -42,9 +34,9 @@ class TextPic(context: Context, view: View) {
             drawMultiLineText(it, paint1, text)
         }
 
-        val matrix1 = Matrix()
-        matrix1.setRotate(180f, (height / 2.0).toFloat(), (width / 2.0).toFloat())
-        return Bitmap.createBitmap(bitmap1, 0, 0, width, height, matrix1, true)
+        val matrix = Matrix()
+        matrix.setRotate(180f, (height / 2.0).toFloat(), (width / 2.0).toFloat())
+        return Bitmap.createBitmap(textPictured, 0, 0, width, height, matrix, true)
     }
 
     private fun drawMultiLineText(canvas: Canvas, paint: Paint, text: String) {
@@ -56,7 +48,6 @@ class TextPic(context: Context, view: View) {
                 multiLinetexts += line
                 privousSplitPoint = index
                 val lineHight = multiLinetexts.size * 80f
-                println("--- line --- $line $lineHight")
                 canvas.drawText(line, 0, line.length, 80f,  lineHight+ 40f, paint)
             }
         }
