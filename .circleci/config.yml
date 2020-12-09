@@ -15,9 +15,9 @@ jobs:
             ./gradlew build
 
       - store_artifacts:
-          path: ./app\build\outputs\apk\debug
+          path: ./app/build/outputs/apk/debug
           destination: app-debug.apk
 
       - store_artifacts:
-          path: ./app\build\outputs\apk\release
+          path: ./app/build/outputs/apk/release
           destination: app-release.apk
